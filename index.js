@@ -30,16 +30,16 @@ db.connect((err) => {
     console.log('Connected to database.');
 });
 
-app.get('api/mahasiswa', (req, res) => {
-    db.query('SELECT * FROM mahasiswa', (err, result)=>{
-        if(err) {
-            console.error('error executing query:' + err.stack);
-            res.status(500).send('error fetching users');
-            return;
+app.get('/api/mahasiswa', (req, res) => {
+    db.query('SELECT * FROM mahasiswa', (err, results) => {
+        if (err) {
+            console.error('Error executing query:', err.stack);
+            return res.status(500).send('Error fetching users');
         }
         res.json(results);
     });
 });
+
 
 app.post('/api/mahasiswa', (req, res) => {
     const { nama, nim, kelas, prodi } = req.body;
@@ -61,3 +61,31 @@ app.post('/api/mahasiswa', (req, res) => {
     );
 });
 
+app.put('/api/mahasiswa/:id', (req, res) => {
+    const userID = req.params.id;
+    const { nama, nim, kelas, prodi } = req.body;
+
+    db.query(
+        'UPDATE mahasiswa SET nama = ?, nim = ?, kelas = ?, prodi = ? WHERE id = ?',
+        [nama, nim, kelas, prodi, userID],
+        (err, results) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Database error' });
+            }
+            res.json({ message: "User updated successfully" });
+        }
+    );
+});
+
+app.delete('/api/mahasiswa/:id', (req, res) => {
+    const userID = req.params.id;
+
+    db.query('DELETE FROM mahasiswa WHERE id = ?', [userID], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Database error' });
+        }
+        res.json({ message: 'User deleted successfully' });
+    });
+});
